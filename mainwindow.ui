@@ -40,7 +40,7 @@
      <string>Get</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="newRequest">
+   <widget class="QPushButton" name="btnOpenFile">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -50,7 +50,17 @@
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Open File</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="tbxFilePath">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>290</y>
+      <width>311</width>
+      <height>20</height>
+     </rect>
     </property>
    </widget>
   </widget>

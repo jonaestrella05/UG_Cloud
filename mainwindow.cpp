@@ -12,6 +12,8 @@
 #include <QNetworkCookie>
 #include <QtCore>
 #include <QHttpPart>
+#include <QFileDialog>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_loaded(false)
 {
     ui->setupUi(this);
+    filePath="";
+    fileName="";
 
     manager = new QNetworkAccessManager(this); //Creando un Network Acces Manager para manejar los metodos
     manager->setCookieJar(new QNetworkCookieJar); //Asignando un Cookie Jar para guardar las cookies
@@ -105,13 +109,6 @@ void MainWindow::on_btnGet_clicked()
     manager->get(request);
 }
 
-
-//Boton sin uso por el momento
-void MainWindow::on_newRequest_clicked()
-{
-       // QNetworkRequest request(QUrl("https://backcloud2019.herokuapp.com/datos"));
-       // manager->get(request);
-}
 
 
 // Funcion para guardar la cookie de la sesión
@@ -213,18 +210,21 @@ bool MainWindow::loadLoginCookie()
 //POR EL MOMENTO SOLO SIRVE PARA ENVIAR UN ARCHIVO LLAMADO test.txt QUE DEBE ESTAR EN EL DIRECTORIO DEL DE PROYECTO
 //FALTA IMPLEMENTAR LA SELECCIÓN DE ARCHIVOS
 void MainWindow::sendFile(){
+    if(filePath=="")
+        return;
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);//Los archivos se mandan mediante MultiPart
         QHttpPart imagePart; //Esto va a contener la info del archivo a enviar mediante la cabecera
         //Asignamos la cabecera form-data es el tipo de dato, name debe ser = file y filename es el nombre original del archivo.
-        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"test.txt\""));
-
+        //ui->tbxFilePath->setText(sendFilePath);
+        //return;
+        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename="+fileName+"\""));
         QHttpPart textPart; //Creamos un QHttpPart llamado textPart, este va a almacenar el archivo a enviar
         //Asignamos las cabeceras
         textPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"name\""));
         textPart.setBody("Generico");//Asignamos el body, puede ser cualquier cosa
 
-        QString fileLocation =  "./test.txt"; //Asignamos la ruta del archivo
-        QFile file(fileLocation); //Creamos un objeto con el archivo
+        //QString fileLocation =  ; //Asignamos la ruta del archivo
+        QFile file(filePath); //Creamos un objeto con el archivo
         file.open(QIODevice::ReadOnly); //Abrimos el archivo
         //imagePart.setBodyDevice(file);
         file.setParent(multiPart); //
@@ -236,6 +236,8 @@ void MainWindow::sendFile(){
 
         manager->post(request, multiPart);//Hacemos un post ala ruta contenida en request y enviamos el multipar con nuestro archivo a subir
         multiPart->setParent(manager); // delete the multiPart with the reply
+        filePath = ""; fileName="";
+        ui->tbxFilePath->setText("");
 
         //FUNCIONES  AUN POR CREAR PARA VISUALIZAR EL PROGRESO DE LA CARGA DEL ARCHIVO
         /*
@@ -244,4 +246,12 @@ void MainWindow::sendFile(){
 
          connect(manager, SIGNAL(uploadProgress(qint64, qint64)),
                   this, SLOT  (uploadProgress(qint64, qint64)));*/
+}
+
+void MainWindow::on_btnOpenFile_clicked()
+{
+    filePath = QFileDialog::getOpenFileName(this, "Cargar un archivo",QDir::homePath(), "All files (*.*)");
+    QFileInfo fi(filePath);
+    fileName = fi.fileName();
+    ui->tbxFilePath->setText(filePath);
 }

@@ -27,12 +27,13 @@ private slots:
     void onManagerFinished(QNetworkReply *);
     void onManagerFinishedGet(QNetworkReply *reply);
     void on_btnGet_clicked();
-    void on_newRequest_clicked();
     bool saveLoginCookie(const QNetworkCookie &cookie);
     bool loadLoginCookie();
     void sendFile();
 
 
+
+    void on_btnOpenFile_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -42,6 +43,7 @@ private:
     QNetworkRequest request;
     QNetworkCookieJar *logcookies;
     bool m_loaded;
+    QString filePath, fileName;
 
 };
 #endif // MAINWINDOW_H
