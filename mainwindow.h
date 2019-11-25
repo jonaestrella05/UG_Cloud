@@ -6,6 +6,7 @@
 #include <QNetworkCookieJar>
 #include <string>
 #include <QUrlQuery>
+#include <QFile>
 
 void test();
 
@@ -21,6 +22,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 public slots:
+    void replyFinished(QNetworkReply *reply);
 
 private slots:
     void on_btnRequest_clicked();
@@ -35,6 +37,15 @@ private slots:
 
     void on_btnOpenFile_clicked();
 
+    void on_btnDownload_clicked();
+
+    //Prueba
+    void downloadFile(QString url);
+    void startRequest(QUrl requestedUrl);
+    void onReadyRead();
+    void onReplyFinished();
+
+
 private:
     Ui::MainWindow *ui;
     QUrl urlsearch, urlcookie;
@@ -45,5 +56,9 @@ private:
     bool m_loaded;
     QString filePath, fileName;
 
+    //Prueba
+    QString url_download;
+    QFile *file;
+    QNetworkReply *reply;
 };
 #endif // MAINWINDOW_H

@@ -63,6 +63,29 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnDownload">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>230</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Descarga</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="tbxDownload">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>230</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -70,7 +93,7 @@
      <x>0</x>
      <y>0</y>
      <width>598</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

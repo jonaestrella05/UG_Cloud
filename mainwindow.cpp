@@ -40,8 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
         //Creamos postData, un tipo de datos que asemeja a un formulario, este se manda durante el post y contiene los datos de usuario y contraseña
         //Esto es provicional, posteriormente se iniciará sesión de forma distinta.
         QUrlQuery postData;
-        postData.addQueryItem("user", "Tony");//Se agrega el user y pass
-        postData.addQueryItem("pass", "Contraseña");
+        postData.addQueryItem("user", "jonathan");//Se agrega el user y pass
+        postData.addQueryItem("pass", "123");
 
         manager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());//Se hace un post mediante el manager a la ruta /log para iniciar sesión
     }
@@ -105,7 +105,7 @@ void MainWindow::on_btnGet_clicked()
 {
     QNetworkRequest request(QUrl("https://backcloud2019.herokuapp.com/datos"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-     qDebug()<< "Get Button Request";
+    qDebug()<< "Get Button Request";
     manager->get(request);
 }
 
@@ -255,4 +255,97 @@ void MainWindow::on_btnOpenFile_clicked()
     QFileInfo fi(filePath);
     fileName = fi.fileName();
     ui->tbxFilePath->setText(filePath);
+}
+
+void MainWindow::on_btnDownload_clicked(){
+    qDebug()<< "Download File boton";//Debuging para saber que boton presionamos, se muestra en consola
+    QString file_name = ui->tbxDownload->text();
+    qDebug()<< "Nombre de archivo a descargar: " + file_name;
+    downloadFile(file_name);
+}
+
+void MainWindow::downloadFile(QString url)
+{
+    const QString urlSpec = "https://backcloud2019.herokuapp.com/download/"+ url;
+
+    QUrl newUrl = urlSpec;
+    QString fileName = url;
+    QString downloadDirectory = QDir::homePath();
+    url_download = QDir::homePath() + "/" + url;
+    bool useDirectory = !downloadDirectory.isEmpty() && QFileInfo(downloadDirectory).isDir();
+    if (useDirectory)
+        fileName.prepend(downloadDirectory + '/');
+    if (QFile::exists(fileName)) {
+        if (QMessageBox::question(this, tr("Overwrite Existing File"),
+                                  tr("There already exists a file called %1%2."
+                                     " Overwrite?")
+                                     .arg(fileName,
+                                          useDirectory
+                                           ? QString()
+                                           : QStringLiteral(" in the current directory")),
+                                     QMessageBox::Yes | QMessageBox::No,
+                                     QMessageBox::No)
+            == QMessageBox::No) {
+            return;
+        }
+        QFile::remove(fileName);
+    }
+
+    ui->btnDownload->setEnabled(false);
+
+    // schedule the request
+    startRequest(newUrl);
+    ui->btnDownload->setEnabled(true);
+}
+
+void MainWindow::startRequest(QUrl requestedUrl)
+{
+    request.setUrl(requestedUrl);
+    reply = manager->get(request);
+
+    file = new QFile(url_download);
+    file->open(QIODevice::WriteOnly);
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
+    connect(reply,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
+    disconnect(manager, SIGNAL(finished(QNetworkReply*)),
+               this, SLOT(replyFinished(QNetworkReply*)));
+    //connect(reply,SIGNAL(finished()),this,SLOT(onReplyFinished()));
+}
+
+void MainWindow::replyFinished(QNetworkReply *reply)
+{
+    switch(reply->error())
+    {
+        case QNetworkReply::NoError:
+        {
+            qDebug("file is downloaded successfully.");
+            manager->clearAccessCache();
+        }break;
+        default:{
+            qDebug() << reply->errorString().toLatin1();
+        }
+    }
+
+    if(file->isOpen())
+    {
+        file->close();
+        file->deleteLater();
+    }
+}
+
+void MainWindow::onReadyRead()
+{
+    file->write(reply->readAll());
+    file->close();
+    file->deleteLater();
+}
+
+void MainWindow::onReplyFinished()
+{
+//    if(file->isOpen())
+  //  {
+    //    file->close();
+    //    file->deleteLater();
+    //}
 }
