@@ -224,17 +224,18 @@ void MainWindow::sendFile(){
         textPart.setBody("Generico");//Asignamos el body, puede ser cualquier cosa
 
         //QString fileLocation =  ; //Asignamos la ruta del archivo
-        QFile file(filePath); //Creamos un objeto con el archivo
-        file.open(QIODevice::ReadOnly); //Abrimos el archivo
-        //imagePart.setBodyDevice(file);
-        file.setParent(multiPart); //
+        QFile *file = new QFile(filePath); //Creamos un objeto con el archivo
+        file->open(QIODevice::ReadOnly); //Abrimos el archivo
+        imagePart.setBodyDevice(file);
+        file->setParent(multiPart); //
 
         multiPart->append(textPart);//Agregamos al multipart el archivo
         multiPart->append(imagePart);//y las cabeceras
 
         QNetworkRequest request(QUrl("https://backcloud2019.herokuapp.com/subir"));//Establecemos la ruta
-
+        //qDebug()<<"Posting";
         manager->post(request, multiPart);//Hacemos un post ala ruta contenida en request y enviamos el multipar con nuestro archivo a subir
+        //qDebug()<<"Success";
         multiPart->setParent(manager); // delete the multiPart with the reply
         filePath = ""; fileName="";
         ui->tbxFilePath->setText("");
